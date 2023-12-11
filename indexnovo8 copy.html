@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controll-Moon</title>
+    <style>
+        /* Estilos CSS */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f8ff; /* Azure - Um tom suave de azul */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            background-color: #1e90ff; /* Dodger Blue - Azul mais vibrante para o cabeçalho */
+            color: #fff;
+            text-align: center;
+            padding: 20px 0;
+            border-radius: 5px 5px 0 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        header h1 {
+            margin: 0;
+        }
+
+        .menu-container {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            box-sizing: border-box;
+            background-color: #4682b4; /* Steel Blue - Azul mais escuro para o menu */
+            padding: 10px;
+            border-radius: 0 0 5px 5px;
+            margin-top: 20px;
+        }
+
+        .menu-container a {
+            text-decoration: none;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .login-container,
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-top: 110px;
+            box-sizing: border-box;
+        }
+
+        .menu-container {
+            display: none;
+        }
+
+        h2 {
+            color: #333;
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            color: #555;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #1e90ff; /* Dodger Blue - Azul mais vibrante para os botões */
+            color: #fff;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #4682b4; /* Steel Blue - Alteração de cor ao passar o mouse */
+        }
+
+        .estoque-item {
+            margin-bottom: 15px;
+        }
+
+        #historicoLogin li {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Controll Moon</h1>
+    </header>
+
+    <div class="login-container" id="loginContainer">
+        <h2>Faça Login</h2>
+        <label for="username">Usuário:</label>
+        <input id="username" type="text" placeholder="Digite seu usuário" autocomplete="off">
+        <label for="password">Senha:</label>
+        <input id="password" type="password" placeholder="Digite sua senha">
+        <button onclick="login()">Login</button>
+    </div>
+
+    <div class="menu-container" id="menuContainer">
+        <a href="#" onclick="showPage('adicionar')">Adicionar Produto</a>
+        <a href="#" onclick="showPage('remover')">Remover Produto</a>
+        <a href="#" onclick="showPage('estoque')">Ver Estoque Completo</a>
+        <a href="#" onclick="showPage('historico')">Ver Histórico de Login</a>
+        <a href="#" onclick="logout()">Logout</a>
+    </div>
+
+    <div class="container" id="mainContainer" style="display: none;">
+        <div class="adicionar-page" style="display: none;">
+            <!-- Conteúdo da página de adicionar produto -->
+            <h2>Adicionar Produto</h2>
+            <label for="nome">Nome do Produto:</label>
+            <input id="nome" type="text" placeholder="Nome do Produto" autocomplete="off">
+            <label for="quantidade">Quantidade:</label>
+            <input id="quantidade" type="number" placeholder="Quantidade">
+            <button onclick="adicionarProduto()">Adicionar Produto</button>
+        </div>
+
+        <div class="remover-page" style="display: none;">
+            <!-- Conteúdo da página de remover produto -->
+            <h2>Remover Produto</h2>
+            <label for="nomeRemover">Nome do Produto:</label>
+            <input id="nomeRemover" type="text" placeholder="Nome do Produto" autocomplete="off">
+            <label for="quantidadeRemover">Quantidade:</label>
+            <input id="quantidadeRemover" type="number" placeholder="Quantidade">
+            <button onclick="removerProduto()">Remover Produto</button>
+        </div>
+
+        <div class="estoque-page" style="display: none;">
+            <!-- Conteúdo da página de estoque -->
+            <h2>Estoque Completo</h2>
+            <div id="estoque"></div>
+        </div>
+
+        <div class="historico-page" style="display: none;">
+            <!-- Conteúdo da página de histórico de login -->
+            <h2>Histórico de Login</h2>
+            <ul id="historicoLogin"></ul>
+        </div>
+    </div>
+
+    <script>
+        var estoque = JSON.parse(localStorage.getItem('estoque')) || [];
+        var historicoLogin = JSON.parse(localStorage.getItem('historicoLogin')) || [];
+        var isLoggedIn = false;
+        var currentUser = '';
+
+        function login() {
+            var username = document.getElementById('username').value;
+            var password = document.getElementById('password').value;
+
+            // Simulando um login bem-sucedido (verifique suas credenciais aqui)
+            if (username !== '' && password !== '') {
+                isLoggedIn = true;
+                currentUser = username; // Salva o nome do usuário atual
+                document.getElementById('loginContainer').style.display = 'none';
+                document.getElementById('menuContainer').style.display = 'flex';
+                document.getElementById('mainContainer').style.display = 'block';
+                showPage('adicionar');
+                document.getElementById('loggedInUser').innerText = currentUser;
+
+                // Registro de histórico de login (simulação)
+                registrarHistoricoLogin('Login bem-sucedido');
+            } else {
+                alert('Usuário ou senha inválidos. Tente novamente.');
+            }
+        }
+
+        function logout() {
+            isLoggedIn = false;
+            currentUser = '';
+            document.getElementById('loginContainer').style.display = 'block';
+            document.getElementById('menuContainer').style.display = 'none';
+            document.getElementById('mainContainer').style.display = 'none';
+
+            // Registro de histórico de logout (simulação)
+            registrarHistoricoLogin('Logout');
+        }
+
+        function showPage(page) {
+            // Ocultar todas as páginas
+            document.querySelectorAll('.container > div').forEach(function (div) {
+                div.style.display = 'none';
+            });
+
+            switch (page) {
+                case 'adicionar':
+                    document.querySelector('.adicionar-page').style.display = 'block';
+                    break;
+                case 'remover':
+                    document.querySelector('.remover-page').style.display = 'block';
+                    break;
+                case 'estoque':
+                    document.querySelector('.estoque-page').style.display = 'block';
+                    atualizarEstoque();
+                    break;
+                case 'historico':
+                    document.querySelector('.historico-page').style.display = 'block';
+                    exibirHistoricoLogin();
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        function adicionarProduto() {
+            var nome = document.getElementById('nome').value;
+            var quantidade = document.getElementById('quantidade').value;
+            var imagem = ''; // Inicializa com uma string vazia para o caminho da imagem
+
+            // Verifica se o nome e a quantidade são válidos
+            if (nome.trim() !== '' && quantidade.trim() !== '' && quantidade >= 0) {
+                for (var i = 0; i < estoque.length; i++) {
+                    if (estoque[i].nome === nome) {
+                        estoque[i].quantidade += Number(quantidade);
+                        atualizarEstoque();
+
+                        // Adiciona a ação ao histórico
+                        registrarHistoricoLogin('Adicionou produto', nome, quantidade);
+
+                        // Salva o estoque no armazenamento local
+                        salvarEstoqueNoLocalStorage();
+                        return;
+                    }
+                }
+
+                estoque.push({ nome: nome, quantidade: Number(quantidade), imagem: imagem });
+                atualizarEstoque();
+
+                // Adiciona a ação ao histórico
+                registrarHistoricoLogin('Adicionou produto', nome, quantidade);
+
+                // Salva o estoque no armazenamento local
+                salvarEstoqueNoLocalStorage();
+            } else {
+                alert('Por favor, preencha o nome e a quantidade corretamente.');
+            }
+        }
+
+        function removerProduto() {
+            var nome = document.getElementById('nomeRemover').value;
+            var quantidade = document.getElementById('quantidadeRemover').value;
+
+            // Verifica se o nome e a quantidade são válidos
+            if (nome.trim() !== '' && quantidade.trim() !== '' && quantidade >= 0) {
+                for (var i = 0; i < estoque.length; i++) {
+                    if (estoque[i].nome === nome) {
+                        estoque[i].quantidade -= Number(quantidade);
+                        if (estoque[i].quantidade <= 0) {
+                            estoque.splice(i, 1);
+                        }
+                        atualizarEstoque();
+
+                        // Adiciona a ação ao histórico
+                        registrarHistoricoLogin('Removeu produto', nome, quantidade);
+
+                        // Salva o estoque no armazenamento local
+                        salvarEstoqueNoLocalStorage();
+                        return;
+                    }
+                }
+
+                alert('Produto não encontrado no estoque.');
+            } else {
+                alert('Por favor, preencha o nome e a quantidade corretamente.');
+            }
+        }
+
+        function atualizarEstoque() {
+            var estoqueDiv = document.getElementById('estoque');
+            estoqueDiv.innerHTML = '';
+
+            for (var i = 0; i < estoque.length; i++) {
+                var item = estoque[i];
+                var itemDiv = document.createElement('div');
+                itemDiv.className = 'estoque-item';
+
+                itemDiv.innerHTML = `
+                    <p>Nome: ${item.nome}</p>
+                    <p>Quantidade: ${item.quantidade}</p>
+                `;
+                estoqueDiv.appendChild(itemDiv);
+            }
+        }
+
+        function exibirHistoricoLogin() {
+            var historicoLoginUl = document.getElementById('historicoLogin');
+            historicoLoginUl.innerHTML = '';
+
+            for (var i = 0; i < historicoLogin.length; i++) {
+                var item = historicoLogin[i];
+                var li = document.createElement('li');
+                li.textContent = `Usuário: ${item.usuario}, Horário: ${item.horario}, Ação: ${item.acao}, Produto: ${item.produto || ''}, Quantidade: ${item.quantidade || ''}`;
+                historicoLoginUl.appendChild(li);
+            }
+        }
+
+        function registrarHistoricoLogin(acao, produto, quantidade) {
+            // Simulação do registro de histórico com data/hora atual (ajuste conforme necessário)
+            var dataHora = new Date().toLocaleString();
+
+            // Adiciona o novo registro ao histórico
+            historicoLogin.push({
+                usuario: currentUser,
+                horario: dataHora,
+                acao: acao,
+                produto: produto || '',
+                quantidade: quantidade || ''
+            });
+
+            // Salva o histórico de login no armazenamento local
+            salvarHistoricoLoginNoLocalStorage();
+        }
+
+        function salvarEstoqueNoLocalStorage() {
+            localStorage.setItem('estoque', JSON.stringify(estoque));
+        }
+
+        function salvarHistoricoLoginNoLocalStorage() {
+            localStorage.setItem('historicoLogin', JSON.stringify(historicoLogin));
+        }
+    </script>
+</body>
+
+</html>
